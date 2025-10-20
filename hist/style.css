@@ -1,0 +1,625 @@
+/* style.css - Estilos para Space Run */
+:root{
+    --bg:#000; --hud:#8be9fd; --accent:#5865f2; --danger:#ff5555; --ok:#50fa7b;
+    --hologram:#9d4edd; --waypoint:#f72585; --planet:#4cc9f0;
+}
+
+*{box-sizing:border-box}
+
+html,body{height:100%;margin:0;background:#000;font-family:system-ui,Segoe UI,Arial,sans-serif;color:#eaeaea}
+
+.wrap{position:relative;width:100%;height:100%;overflow:hidden;background:#000}
+
+canvas#view{position:absolute;inset:0;width:100%;height:100%;display:block;background:#000}
+
+/* HUD Otimizado */
+.hud{
+    position:absolute !important;
+    left:12px !important;
+    top:12px !important;
+    z-index:100 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:.3rem !important;
+    font-size:12px !important;
+    color:var(--hud) !important;
+    text-shadow:0 0 6px #0ff4 !important;
+    background:linear-gradient(135deg, rgba(0,20,40,0.85), rgba(0,10,30,0.9)) !important;
+    border:1px solid #0ff5 !important;
+    border-radius:10px !important;
+    padding:.8rem !important;
+    backdrop-filter:blur(8px) !important;
+    box-shadow:0 0 15px rgba(0,255,255,0.3) !important;
+    width:200px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.hud-row {
+    display:flex !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+    padding:3px 0 !important;
+    border-bottom:1px solid rgba(0,255,255,0.2) !important;
+}
+
+.hud-row:last-child { 
+    border-bottom:none !important; 
+}
+
+.hud b{color:#fff;font-weight:bold}
+
+/* Controles */
+.legend{
+    position:absolute !important;
+    left:12px !important;
+    top:170px !important;
+    z-index:20 !important;
+    background:linear-gradient(135deg, rgba(0,20,40,0.85), rgba(0,10,30,0.9)) !important;
+    border:1px solid #0ff3 !important;
+    border-radius:10px !important;
+    padding:.6rem .8rem !important;
+    font-size:12px !important;
+    box-shadow:0 0 15px rgba(0,255,255,0.2) !important;
+    width:200px !important;
+    visibility: visible !important;
+}
+
+.legend kbd{
+    background:#111 !important;
+    border:1px solid #333 !important;
+    border-bottom-width:2px !important;
+    border-radius:6px !important;
+    padding:.1rem .35rem !important;
+    margin:0 .1rem !important;
+    color:#ddd !important;
+}
+
+/* Minimapa */
+.minimap{
+    position:absolute !important;
+    right:12px !important;
+    bottom:180px !important;
+    z-index:20 !important;
+    width:220px !important;
+    height:140px !important;
+    background:linear-gradient(135deg, rgba(5,15,30,0.9), rgba(10,25,45,0.85)) !important;
+    border:2px solid #2c3e50 !important;
+    border-radius:12px !important;
+    overflow:hidden !important;
+    box-shadow:0 0 24px rgba(0,100,200,0.4) inset, 0 0 15px rgba(0,100,200,0.3) !important;
+    visibility: visible !important;
+}
+
+.minimap .title{
+    font-size:11px !important;
+    text-align:center !important;
+    color:#9aa !important;
+    padding:4px 0 !important;
+    border-bottom:1px solid #2c3e50 !important;
+}
+
+.minimap canvas{
+    display:block !important;
+    width:100% !important;
+    height:calc(100% - 20px) !important;
+}
+
+/* Mapa Holográfico */
+.hologram-container {
+    position:absolute !important;
+    right:12px !important;
+    bottom:12px !important;
+    z-index:20 !important;
+    background:linear-gradient(135deg, rgba(5,15,30,0.9), rgba(10,25,45,0.85)) !important;
+    border:3px solid rgba(157,78,221,0.8) !important;
+    border-radius:12px !important;
+    padding:12px !important;
+    width:220px !important;
+    height:160px !important;
+    box-shadow:0 0 30px rgba(157,78,221,0.5) !important;
+    perspective:1000px !important;
+    visibility: visible !important;
+}
+
+.hologram-title {
+    font-weight:bold !important;
+    margin-bottom:8px !important;
+    color:var(--hologram) !important;
+    font-size:14px !important;
+    text-align:center !important;
+    text-shadow:0 0 10px rgba(157,78,221,0.7) !important;
+}
+
+#hologram {
+    border-radius:8px !important;
+    background:rgba(10,0,30,0.9) !important;
+    border:1px solid rgba(157,78,221,0.5) !important;
+    width:196px !important;
+    height:120px !important;
+}
+
+/* Scanner de Proximidade */
+.scanner-container {
+    position:absolute !important;
+    right:12px !important;
+    top:12px !important;
+    z-index:20 !important;
+    background:linear-gradient(135deg, rgba(5,15,30,0.9), rgba(10,25,45,0.85)) !important;
+    border:2px solid rgba(247,37,133,0.8) !important;
+    border-radius:12px !important;
+    width:120px !important;
+    height:150px !important;
+    padding:10px 5px !important;
+    box-shadow:0 0 15px rgba(247,37,133,0.3) !important;
+    visibility: visible !important;
+}
+
+.scanner-title {
+    text-align:center !important;
+    font-weight:bold !important;
+    color:var(--waypoint) !important;
+    font-size:12px !important;
+    margin-bottom:5px !important;
+}
+
+.scanner {
+    position:relative !important;
+    width:110px !important;
+    height:110px !important;
+    border-radius:50% !important;
+    background:radial-gradient(circle, rgba(30,30,30,0.8), rgba(10,10,10,0.9)) !important;
+    border:1px solid rgba(247,37,133,0.5) !important;
+    overflow:hidden !important;
+    margin:0 auto !important;
+}
+
+.scanner-sweep {
+    position:absolute !important;
+    top:50% !important;
+    left:50% !important;
+    width:2px !important;
+    height:45px !important;
+    background:linear-gradient(to top, transparent, rgba(247,37,133,0.9)) !important;
+    transform-origin:bottom center !important;
+    transform:translate(-50%, -100%) rotate(0deg) !important;
+    border-radius:1px !important;
+    box-shadow:0 0 10px rgba(247,37,133,0.7) !important;
+    animation:scan 4s linear infinite !important;
+}
+
+@keyframes scan {
+    0% { transform: translate(-50%, -100%) rotate(0deg); }
+    100% { transform: translate(-50%, -100%) rotate(360deg); }
+}
+
+.scanner-center {
+    position:absolute !important;
+    top:50% !important;
+    left:50% !important;
+    width:12px !important;
+    height:12px !important;
+    background:var(--waypoint) !important;
+    border-radius:50% !important;
+    transform:translate(-50%, -50%) !important;
+    box-shadow:0 0 8px rgba(247,37,133,0.8) !important;
+}
+
+.scanner-object {
+    position:absolute !important;
+    width:6px !important;
+    height:6px !important;
+    border-radius:50% !important;
+    background:rgba(0,255,255,0.9) !important;
+    box-shadow:0 0 5px rgba(0,255,255,0.7) !important;
+}
+
+/* Navegação por Waypoints */
+.waypoint-container {
+    position:absolute !important;
+    right:12px !important;
+    top:170px !important;
+    z-index:20 !important;
+    background:linear-gradient(135deg, rgba(5,15,30,0.9), rgba(10,25,45,0.85)) !important;
+    border:1px solid rgba(247,37,133,0.3) !important;
+    border-radius:10px !important;
+    padding:10px !important;
+    width:220px !important;
+    box-shadow:0 0 15px rgba(247,37,133,0.2) !important;
+    visibility: visible !important;
+}
+
+.waypoint-title {
+    font-weight:bold !important;
+    margin-bottom:8px !important;
+    color:var(--waypoint) !important;
+    text-align:center !important;
+    font-size:14px !important;
+}
+
+.waypoint-item {
+    display:flex !important;
+    justify-content:space-between !important;
+    padding:5px 0 !important;
+    border-bottom:1px solid rgba(255,255,255,0.1) !important;
+    cursor:pointer !important;
+    transition:background 0.2s !important;
+}
+
+.waypoint-item:hover {
+    background:rgba(247,37,133,0.2) !important;
+    border-radius:5px !important;
+    padding-left:5px !important;
+}
+
+.waypoint-item.active {
+    background:rgba(247,37,133,0.3) !important;
+    border-radius:5px !important;
+    padding-left:5px !important;
+    font-weight:bold !important;
+}
+
+.waypoint-distance {
+    color:#aaa !important;
+    font-size:11px !important;
+}
+
+/* Painel de Visão Planetária */
+.planet-view {
+    position:absolute !important;
+    left:12px !important;
+    bottom:12px !important;
+    z-index:20 !important;
+    background:linear-gradient(135deg, rgba(5,15,30,0.9), rgba(10,25,45,0.85)) !important;
+    border:2px solid var(--planet) !important;
+    border-radius:12px !important;
+    padding:12px !important;
+    width:250px !important;
+    box-shadow:0 0 20px rgba(76,201,240,0.4) !important;
+    visibility: visible !important;
+}
+
+.planet-title {
+    font-weight:bold !important;
+    margin-bottom:10px !important;
+    color:var(--planet) !important;
+    font-size:16px !important;
+    text-align:center !important;
+    text-shadow:0 0 10px rgba(76,201,240,0.7) !important;
+}
+
+.planet-info {
+    display:flex !important;
+    flex-direction:column !important;
+    gap:8px !important;
+}
+
+.planet-info-row {
+    display:flex !important;
+    justify-content:space-between !important;
+    padding:4px 0 !important;
+    border-bottom:1px solid rgba(76,201,240,0.2) !important;
+}
+
+.planet-info-label {
+    color:#aaa !important;
+    font-size:12px !important;
+}
+
+.planet-info-value {
+    color:#fff !important;
+    font-weight:bold !important;
+    font-size:12px !important;
+}
+
+.planet-image-container {
+    width:80px !important;
+    height:80px !important;
+    margin:10px auto !important;
+    border-radius:50% !important;
+    overflow:hidden !important;
+    border:2px solid var(--planet) !important;
+    box-shadow:0 0 15px rgba(76,201,240,0.5) !important;
+}
+
+.planet-image {
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+}
+
+.planet-proximity {
+    height:8px !important;
+    background:rgba(255,255,255,0.1) !important;
+    border-radius:4px !important;
+    margin-top:8px !important;
+    overflow:hidden !important;
+}
+
+.planet-proximity-bar {
+    height:100% !important;
+    background:linear-gradient(90deg, var(--ok), var(--danger)) !important;
+    width:30% !important;
+    border-radius:4px !important;
+}
+
+/* Controles de Navegação */
+.controls-container {
+    position:absolute !important;
+    bottom:30px !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+    display:flex !important;
+    gap:15px !important;
+    z-index:60 !important;
+    visibility: visible !important;
+}
+
+.control-btn {
+    width:70px !important;
+    height:70px !important;
+    border-radius:50% !important;
+    background:linear-gradient(135deg, rgba(30,144,255,0.3), rgba(20,100,200,0.2)) !important;
+    border:2px solid rgba(30,144,255,0.6) !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    font-size:28px !important;
+    color:#fff !important;
+    cursor:pointer !important;
+    transition:all 0.2s !important;
+    box-shadow:0 0 15px rgba(30,144,255,0.3) !important;
+}
+
+.control-btn:hover {
+    background:linear-gradient(135deg, rgba(30,144,255,0.5), rgba(20,100,200,0.3)) !important;
+    transform:scale(1.05) !important;
+}
+
+.control-btn:active {
+    transform:scale(0.95) !important;
+}
+
+/* Painel de Configurações */
+.settings-container {
+    position:absolute !important;
+    top:50% !important;
+    left:50% !important;
+    transform:translate(-50%, -50%) !important;
+    background:linear-gradient(135deg, rgba(5,15,30,0.95), rgba(10,25,45,0.9)) !important;
+    border:2px solid rgba(157,78,221,0.8) !important;
+    border-radius:16px !important;
+    padding:20px !important;
+    width:400px !important;
+    max-height:80vh !important;
+    overflow-y:auto !important;
+    z-index:100 !important;
+    display:none !important;
+    box-shadow:0 0 30px rgba(157,78,221,0.5) !important;
+}
+
+.settings-container.active {
+    display:block !important;
+}
+
+.settings-title {
+    font-size:20px !important;
+    font-weight:bold !important;
+    color:var(--hologram) !important;
+    margin-bottom:20px !important;
+    text-align:center !important;
+    text-shadow:0 0 10px rgba(157,78,221,0.7) !important;
+}
+
+.settings-group {
+    margin-bottom:20px !important;
+}
+
+.settings-group-title {
+    font-size:16px !important;
+    font-weight:bold !important;
+    color:#fff !important;
+    margin-bottom:10px !important;
+    border-bottom:1px solid rgba(157,78,221,0.3) !important;
+    padding-bottom:5px !important;
+}
+
+.setting-item {
+    display:flex !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+    margin-bottom:12px !important;
+    padding:8px !important;
+    background:rgba(30,30,30,0.5) !important;
+    border-radius:8px !important;
+}
+
+.setting-label {
+    font-size:14px !important;
+    color:#eaeaea !important;
+}
+
+.setting-control {
+    display:flex !important;
+    align-items:center !important;
+}
+
+.slider {
+    width:120px !important;
+    height:6px !important;
+    background:rgba(157,78,221,0.3) !important;
+    border-radius:3px !important;
+    outline:none !important;
+    -webkit-appearance:none !important;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance:none !important;
+    width:16px !important;
+    height:16px !important;
+    background:var(--hologram) !important;
+    border-radius:50% !important;
+    cursor:pointer !important;
+}
+
+.slider::-moz-range-thumb {
+    width:16px !important;
+    height:16px !important;
+    background:var(--hologram) !important;
+    border-radius:50% !important;
+    cursor:pointer !important;
+    border:none !important;
+}
+
+.toggle {
+    position:relative !important;
+    width:50px !important;
+    height:24px !important;
+    background:rgba(157,78,221,0.3) !important;
+    border-radius:12px !important;
+    cursor:pointer !important;
+}
+
+.toggle.active {
+    background:var(--hologram) !important;
+}
+
+.toggle-slider {
+    position:absolute !important;
+    top:2px !important;
+    left:2px !important;
+    width:20px !important;
+    height:20px !important;
+    background:#fff !important;
+    border-radius:50% !important;
+    transition:transform 0.2s !important;
+}
+
+.toggle.active .toggle-slider {
+    transform:translateX(26px) !important;
+}
+
+.settings-buttons {
+    display:flex !important;
+    justify-content:space-between !important;
+    margin-top:20px !important;
+}
+
+.settings-btn {
+    padding:10px 20px !important;
+    background:rgba(30,144,255,0.2) !important;
+    border:1px solid rgba(30,144,255,0.5) !important;
+    border-radius:8px !important;
+    color:#fff !important;
+    cursor:pointer !important;
+    font-weight:bold !important;
+    transition:all 0.2s !important;
+}
+
+.settings-btn:hover {
+    background:rgba(30,144,255,0.4) !important;
+}
+
+.settings-btn.primary {
+    background:rgba(157,78,221,0.3) !important;
+    border-color:var(--hologram) !important;
+}
+
+.settings-btn.primary:hover {
+    background:rgba(157,78,221,0.5) !important;
+}
+
+/* Feedback Visual */
+.feedback {
+    position:absolute !important;
+    top:50% !important;
+    left:50% !important;
+    transform:translate(-50%, -50%) !important;
+    font-size:18px !important;
+    font-weight:bold !important;
+    color:#fff !important;
+    text-shadow:0 0 10px rgba(0,255,255,0.8) !important;
+    pointer-events:none !important;
+    z-index:70 !important;
+    opacity:0 !important;
+    transition:opacity 0.3s !important;
+}
+
+/* Efeito de Velocidade */
+.speed-effect {
+    position:absolute !important;
+    top:0 !important;
+    left:0 !important;
+    width:100% !important;
+    height:100% !important;
+    pointer-events:none !important;
+    z-index:5 !important;
+    opacity:0 !important;
+    background:radial-gradient(circle at center, transparent 30%, rgba(0,100,255,0.1) 70%) !important;
+    transition:opacity 0.3s !important;
+}
+
+.toast {
+    position:absolute !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+    bottom:24px !important;
+    z-index:25 !important;
+    background:linear-gradient(135deg, rgba(10,20,40,0.9), rgba(5,15,35,0.8)) !important;
+    border:1px solid #334 !important;
+    color:#cde !important;
+    padding:.6rem .9rem !important;
+    border-radius:10px !important;
+    font-size:12px !important;
+    opacity:.85 !important;
+    box-shadow:0 0 15px rgba(0,100,200,0.3) !important;
+}
+
+/* Media Queries */
+@media (max-width: 900px) {
+    .hud { 
+        width:160px !important; 
+        padding:.6rem !important; 
+    }
+    .legend { 
+        width:160px !important; 
+        font-size:11px !important; 
+    }
+    .hologram-container { 
+        width:180px !important; 
+        height:130px !important; 
+    }
+    #hologram { 
+        width:156px !important; 
+        height:90px !important; 
+    }
+    .scanner-container { 
+        width:100px !important; 
+        height:130px !important; 
+    }
+    .scanner { 
+        width:90px !important; 
+        height:90px !important; 
+    }
+    .scanner-sweep { 
+        height:35px !important; 
+    }
+    .waypoint-container { 
+        width:180px !important; 
+    }
+    .planet-view { 
+        width:200px !important; 
+    }
+    .controls-container { 
+        bottom:20px !important; 
+    }
+    .control-btn { 
+        width:60px !important; 
+        height:60px !important; 
+        font-size:24px !important; 
+    }
+    .settings-container { 
+        width:90% !important; 
+        max-width:350px !important; 
+    }
+}
