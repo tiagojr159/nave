@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../nave2/nave_full/css"
+		},
+		{
+			"path": "../nave2/nave_full/images"
+		},
+		{
+			"path": "../nave2/nave_full/js"
+		},
+		{
+			"path": "../nave2/nave_full/media"
+		},
+		{
+			"path": "../nave2/hist"
+		}
+	],
+	"settings": {}
+}

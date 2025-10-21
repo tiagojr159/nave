@@ -1,17 +1,17 @@
 // planets.js - Camada dos planetas
 (function() {
     const bodies = [
-        {name:"Sol", img:"sol.png", x:0, y:0, r:1200, temp:"5.778 K", atmosphere:"Hélio, Hidrogênio", rotation: 0, rotationSpeed: 0.001},
-        {name:"Mercúrio", img:"eros.png", x:0, y:0, r:120, temp:"440 K", atmosphere:"Exosfera", rotation: 0, rotationSpeed: 0.005},
-        {name:"Vênus", img:"venus.png", x:0, y:0, r:350, temp:"735 K", atmosphere:"Dióxido de Carbono", rotation: 0, rotationSpeed: 0.002},
-        {name:"Terra", img:"terra.png", x:0, y:0, r:360, temp:"288 K", atmosphere:"Nitrogênio, Oxigênio", rotation: 0, rotationSpeed: 0.01},
-        {name:"Marte", img:"marte.png", x:0, y:0, r:270, temp:"210 K", atmosphere:"Dióxido de Carbono", rotation: 0, rotationSpeed: 0.009},
+        {name:"Sol", img:"sol.png", x:0, y:0, r:1200, temp:"5.778 K", atmosphere:"Hélio, Hidrogênio", rotation: 0, rotationSpeed: 0.0},
+        {name:"Mercúrio", img:"eros.png", x:0, y:0, r:120, temp:"440 K", atmosphere:"Exosfera", rotation: 0, rotationSpeed: 0.0},
+        {name:"Vênus", img:"venus.png", x:0, y:0, r:350, temp:"735 K", atmosphere:"Dióxido de Carbono", rotation: 0, rotationSpeed: 0.0},
+        {name:"Terra", img:"terra.png", x:0, y:0, r:360, temp:"288 K", atmosphere:"Nitrogênio, Oxigênio", rotation: 0, rotationSpeed: 0.0},
+        {name:"Marte", img:"marte.png", x:0, y:0, r:270, temp:"210 K", atmosphere:"Dióxido de Carbono", rotation: 0, rotationSpeed: 0.0},
         {name:"Ceres", img:"ceres.png", x:0, y:0, r:120, temp:"200 K", atmosphere:"Sem atmosfera", rotation: 0, rotationSpeed: 0.007},
-        {name:"Júpiter", img:"jupter.png", x:0, y:0, r:900, temp:"165 K", atmosphere:"Hidrogênio, Hélio", rotation: 0, rotationSpeed: 0.02},
-        {name:"Ganimedes", img:"ganimedes.png", x:0, y:0, r:260, temp:"110 K", atmosphere:"Oxigênio", rotation: 0, rotationSpeed: 0.008},
-        {name:"Saturno", img:"sartuno.png", x:0, y:0, r:800, temp:"134 K", atmosphere:"Hidrogênio, Hélio", rotation: 0, rotationSpeed: 0.018},
-        {name:"Asteróide", img:"asteroide.png", x:0, y:0, r:80, temp:"173 K", atmosphere:"Sem atmosfera", rotation: 0, rotationSpeed: 0.015},
-        {name:"Netuno", img:"netuno.png", x:0, y:0, r:520, temp:"72 K", atmosphere:"Hidrogênio, Hélio", rotation: 0, rotationSpeed: 0.016},
+        {name:"Júpiter", img:"jupter.png", x:0, y:0, r:900, temp:"165 K", atmosphere:"Hidrogênio, Hélio", rotation: 0, rotationSpeed: 0.0},
+        {name:"Ganimedes", img:"ganimedes.png", x:0, y:0, r:260, temp:"110 K", atmosphere:"Oxigênio", rotation: 0, rotationSpeed: 0.0},
+        {name:"Saturno", img:"sartuno.png", x:0, y:0, r:800, temp:"134 K", atmosphere:"Hidrogênio, Hélio", rotation: 0, rotationSpeed: 0.0},
+        {name:"Asteróide", img:"asteroide.png", x:0, y:0, r:80, temp:"173 K", atmosphere:"Sem atmosfera", rotation: 0, rotationSpeed: 0.0},
+        {name:"Netuno", img:"netuno.png", x:0, y:0, r:520, temp:"72 K", atmosphere:"Hidrogênio, Hélio", rotation: 0, rotationSpeed: 0.0},
     ];
     
     function randomizeBodies() {
