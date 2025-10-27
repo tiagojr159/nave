@@ -1,0 +1,273 @@
+    <?php
+session_start();
+
+// Verifica se o usuário está logado
+if (!isset($_SESSION['usuario'])) {
+    header("Location: page/login.php");
+    exit;
+}
+
+require_once 'db/conexao.php';
+
+$usuario_id = $_SESSION['usuario']['id'];
+
+// Buscar posição salva da nave
+$sql = "SELECT posicao_x, posicao_y FROM naves WHERE usuario_id = ?";
+$stmt = $conexao->prepare($sql);
+$stmt->bind_param("i", $usuario_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $nave = $result->fetch_assoc();
+    $posInicialX = intval($nave['posicao_x']);
+    $posInicialY = intval($nave['posicao_y']);
+} else {
+    $posInicialX = 100;
+    $posInicialY = 100;
+}
+?>
+
+
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Space Run — Sistema Solar com Componentes Avançados</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <div class="wrap">
+            <canvas id="view"></canvas>
+
+            <!-- Efeito de Velocidade -->
+            <div class="speed-effect" id="speedEffect"></div>
+
+            <!-- Feedback Visual -->
+            <div class="feedback" id="feedback"></div>
+
+            <!-- HUD Otimizado -->
+            <div class="hud" id="hud">
+                <div class="hud-row">
+                    <span>vel:</span>
+                    <b id="vel">0</b>
+                </div>
+                <div class="hud-row">
+                    <span>rumo:</span>
+                    <b id="hdg">0°</b>
+                </div>
+                <div class="hud-row">
+                    <span>pos:</span>
+                    <b id="pos">0,0</b>
+                </div>
+                <div class="hud-row">
+                    <span>alvo:</span>
+                    <b id="tgt">—</b>
+                </div>
+                <div class="hud-row">
+                    <span>energia:</span>
+                    <b id="energy">100%</b>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div style="font-weight:bold; margin-bottom:5px; text-align:center;">CONTROLES</div>
+                <div><kbd>←</kbd>/<kbd>→</kbd> girar • <kbd>↑</kbd>/<kbd>↓</kbd> olhar</div>
+                <div><kbd>A</kbd> acelerar • <kbd>B</kbd> frear</div>
+                <div><kbd>M</kbd> minimapa • <kbd>R</kbd> reset</div>
+                <div><kbd>ESC</kbd> configurações</div>
+            </div>
+
+            <!-- Scanner de Proximidade -->
+            <div class="scanner-container">
+                <div class="scanner-title">SCANNER</div>
+                <div class="scanner" id="scanner">
+                    <div class="scanner-sweep"></div>
+                    <div class="scanner-center"></div>
+                </div>
+            </div>
+
+            <!-- Navegação por Waypoints -->
+            <div class="waypoint-container">
+                <div class="waypoint-title">WAYPOINTS</div>
+                <div id="waypointNav"></div>
+            </div>
+
+            <!-- Minimapa -->
+            <div class="minimap" id="minimap">
+                <div class="title">Mapa (100.000 × 100.000 px)</div>
+                <canvas id="map"></canvas>
+            </div>
+
+            <!-- Mapa Holográfico -->
+            <div class="hologram-container">
+                <div class="hologram-title">🌌 MAPA HOLOGRÁFICO 🌌</div>
+                <canvas id="hologram"></canvas>
+            </div>
+
+            <!-- Painel de Visão Planetária -->
+            <div class="planet-view" id="planetView">
+                <div class="planet-title">VISÃO PLANETÁRIA</div>
+                <div class="planet-image-container">
+                    <img class="planet-image" id="planetImage" src="" alt="Planeta">
+                </div>
+                <div class="planet-info">
+                    <div class="planet-info-row">
+                        <span class="planet-info-label">Nome:</span>
+                        <span class="planet-info-value" id="planetName">—</span>
+                    </div>
+                    <div class="planet-info-row">
+                        <span class="planet-info-label">Distância:</span>
+                        <span class="planet-info-value" id="planetDistance">—</span>
+                    </div>
+                    <div class="planet-info-row">
+                        <span class="planet-info-label">Diâmetro:</span>
+                        <span class="planet-info-value" id="planetDiameter">—</span>
+                    </div>
+                    <div class="planet-info-row">
+                        <span class="planet-info-label">Temperatura:</span>
+                        <span class="planet-info-value" id="planetTemp">—</span>
+                    </div>
+                    <div class="planet-info-row">
+                        <span class="planet-info-label">Atmosfera:</span>
+                        <span class="planet-info-value" id="planetAtmosphere">—</span>
+                    </div>
+                </div>
+                <div class="planet-proximity">
+                    <div class="planet-proximity-bar" id="planetProximityBar"></div>
+                </div>
+            </div>
+
+            <!-- Controles de Navegação -->
+            <div class="controls-container">
+                <div class="control-btn" id="brakeBtn" title="Frear (B)">⏹️</div>
+                <div class="control-btn" id="boostBtn" title="Turbo (Shift)">⚡</div>
+            </div>
+
+            <!-- Painel de Configurações -->
+            <div class="settings-container" id="settingsPanel">
+                <div class="settings-title">⚙️ CONFIGURAÇÕES</div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">🎮 Controles</div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Sensibilidade do Mouse</div>
+                        <div class="setting-control">
+                            <input type="range" class="slider" id="mouseSensitivity" min="0.01" max="0.2" step="0.01" value="0.05">
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Inverter Eixo Y</div>
+                        <div class="setting-control">
+                            <div class="toggle" id="invertY">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">🔊 Áudio</div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Volume dos Efeitos</div>
+                        <div class="setting-control">
+                            <input type="range" class="slider" id="sfxVolume" min="0" max="1" step="0.1" value="0.6">
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Ativar Som</div>
+                        <div class="setting-control">
+                            <div class="toggle active" id="soundEnabled">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">🎨 Gráficos</div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Qualidade Gráfica</div>
+                        <div class="setting-control">
+                            <select class="select" id="graphicsQuality">
+                                <option value="low">Baixa</option>
+                                <option value="medium" selected>Média</option>
+                                <option value="high">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Mostrar Holograma</div>
+                        <div class="setting-control">
+                            <div class="toggle active" id="showHologram">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Mostrar Scanner</div>
+                        <div class="setting-control">
+                            <div class="toggle active" id="showScanner">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Mostrar Waypoints</div>
+                        <div class="setting-control">
+                            <div class="toggle active" id="showWaypoints">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Mostrar Visão Planetária</div>
+                        <div class="setting-control">
+                            <div class="toggle active" id="showPlanetView">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-buttons">
+                    <button class="settings-btn" id="resetSettings">Redefinir</button>
+                    <button class="settings-btn primary" id="saveSettings">Salvar</button>
+                </div>
+            </div>
+
+            <div class="toast" id="toast" style="display:none"></div>
+        </div>
+
+
+        <script>
+            const initialPosition = {
+                x: <?= $posInicialX ?>,
+                y: <?= $posInicialY ?>
+            };
+        </script>
+        <!-- Carregar os scripts na ordem correta -->
+        <!-- Carregar os scripts na ordem correta -->
+        <script src="js/gameState.js"></script>
+        <script src="js/universeBackground.js"></script>
+        <script src="js/planets.js"></script>
+        <script src="js/otherShips.js"></script>
+        <script src="js/enemyShips.js"></script>
+        <script src="js/shipPanel.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/touchControls.js"></script>
+    </body>
+
+    </html>

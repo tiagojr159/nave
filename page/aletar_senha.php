@@ -5,7 +5,7 @@ if(!isset($_SESSION['usuario'])) {
     exit();
 }
 
-require_once 'conexao.php';
+require_once '../db/conexao.php';
 
 // Resposta em JSON
 header('Content-Type: application/json');

@@ -7,12 +7,15 @@ if(!isset($_SESSION['usuario'])) {
 require_once '../db/conexao.php';
 
 // Consulta para buscar todos os astros
- $sql = "SELECT id, nome, posicao_x, posicao_y, tipo, tamanho, cor, descricao, recursos FROM astros ORDER BY posicao_x, posicao_y";
- $resultado = $conexao->query($sql);
+$sql = "SELECT id, nome, posicao_x, posicao_y, tipo, tamanho, cor, descricao, recursos FROM astros ORDER BY posicao_x, posicao_y";
+$resultado = $conexao->query($sql);
 
- $astros = [];
+$astros = [];
 if ($resultado->num_rows > 0) {
     while ($row = $resultado->fetch_assoc()) {
+        // Escala de 100000px para 1000px
+        $row['posicao_x'] = $row['posicao_x'] / 100;
+        $row['posicao_y'] = $row['posicao_y'] / 100;
         $astros[] = $row;
     }
 }
@@ -257,7 +260,6 @@ if ($resultado->num_rows > 0) {
     </div>
 
     <script>
-        // Elementos do DOM
         const mapGrid = document.getElementById('mapGrid');
         const infoPanel = document.getElementById('infoPanel');
         const closeBtn = document.getElementById('closeBtn');
@@ -269,11 +271,9 @@ if ($resultado->num_rows > 0) {
         const zoomOutBtn = document.getElementById('zoomOut');
         const resetZoomBtn = document.getElementById('resetZoom');
 
-        // Variáveis de controle
         let currentZoom = 1;
         const zoomStep = 0.2;
 
-        // Adicionar evento de clique aos astros
         document.querySelectorAll('.astro').forEach(astro => {
             astro.addEventListener('click', function() {
                 const nome = this.getAttribute('data-nome');
@@ -285,7 +285,6 @@ if ($resultado->num_rows > 0) {
                 infoTipo.textContent = tipo;
                 infoDescricao.textContent = descricao;
                 
-                // Formatar recursos (JSON)
                 try {
                     const recursosObj = JSON.parse(recursos);
                     let recursosStr = '';
@@ -301,12 +300,10 @@ if ($resultado->num_rows > 0) {
             });
         });
 
-        // Fechar painel de informações
         closeBtn.addEventListener('click', function() {
             infoPanel.classList.remove('active');
         });
 
-        // Controles de zoom
         zoomInBtn.addEventListener('click', function() {
             currentZoom += zoomStep;
             if (currentZoom > 3) currentZoom = 3;
@@ -324,13 +321,11 @@ if ($resultado->num_rows > 0) {
             mapGrid.style.transform = `scale(${currentZoom})`;
         });
 
-        // Centralizar o mapa no Sol
         window.addEventListener('load', function() {
             const sol = document.querySelector('.astro.estrela');
             if (sol) {
                 const solX = sol.offsetLeft + sol.offsetWidth / 2;
                 const solY = sol.offsetTop + sol.offsetHeight / 2;
-                
                 const container = document.querySelector('.map-container');
                 container.scrollLeft = solX - container.offsetWidth / 2;
                 container.scrollTop = solY - container.offsetHeight / 2;
