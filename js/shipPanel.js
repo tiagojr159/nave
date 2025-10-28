@@ -662,4 +662,15 @@
         initShipPanel();
     }
 
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof initVoiceChat === "function") {
+    console.log("?? Inicializando chat de voz para o jogador:", PLAYER_ID);
+    initVoiceChat(PLAYER_ID); // inicia o microfone para esse jogador
+  } else {
+    console.warn("?? initVoiceChat() não encontrada — verifique se voiceChat.js foi carregado.");
+  }
+});
+
+
 })();

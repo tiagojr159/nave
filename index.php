@@ -1,13 +1,17 @@
-    <?php
-    session_start();
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    // Verifica se o usuÃ¡rio estÃ¡ logado
-    if (!isset($_SESSION['usuario'])) {
-        header("Location: page/login.php");
-        exit;
-    }
+session_start();
 
-    require_once 'db/conexao.php';
+// Verifica se o usuário está logado
+if (!isset($_SESSION['usuario'])) {
+    header("Location: page/login.php");
+    exit;
+}
+
+require_once 'db/conexao.php';
 
     $usuario_id = $_SESSION['usuario']['id'];
 
