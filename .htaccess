@@ -1,0 +1,5 @@
+RewriteEngine On
+
+# 🔁 Redireciona WebSocket seguro (WSS) para o servidor local
+RewriteCond %{HTTP:Upgrade} =websocket [NC]
+RewriteRule ^voice/(.*)$  ws://127.0.0.1:8080/$1  [P,L]
