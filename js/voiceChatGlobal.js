@@ -1,6 +1,6 @@
 // 🎙️ Rádio Global — todos os jogadores falam e ouvem via WebSocket
 (() => {
-const WS_HOST = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/nave/voice';
+const WS_HOST = (location.protocol === 'https:' ? 'wss://' : 'ws://') + 'ki6.com.br:8080';
   const BTN = () => document.getElementById('micToggleBtn');
   const IND = () => document.getElementById('micIndicator');
 
