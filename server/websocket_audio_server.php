@@ -12,17 +12,14 @@ use React\EventLoop\Factory;
 
 class AudioBroadcast implements MessageComponentInterface {
     protected $clients;
-
     public function __construct() {
         $this->clients = new \SplObjectStorage;
-        echo "🎙️ Servidor de áudio inicializado (WSS habilitado)...\n";
+        echo "🎙️ Servidor de áudio WSS iniciado...\n";
     }
-
     public function onOpen(ConnectionInterface $conn) {
         $this->clients->attach($conn);
-        echo "🛰️ Nova conexão: {$conn->resourceId}\n";
+        echo "🛰️ Nova conexão #{$conn->resourceId}\n";
     }
-
     public function onMessage(ConnectionInterface $from, $msg) {
         foreach ($this->clients as $client) {
             if ($client !== $from) {
@@ -30,12 +27,10 @@ class AudioBroadcast implements MessageComponentInterface {
             }
         }
     }
-
     public function onClose(ConnectionInterface $conn) {
         $this->clients->detach($conn);
-        echo "❌ Conexão encerrada: {$conn->resourceId}\n";
+        echo "❌ Conexão encerrada #{$conn->resourceId}\n";
     }
-
     public function onError(ConnectionInterface $conn, \Exception $e) {
         echo "⚠️ Erro: {$e->getMessage()}\n";
         $conn->close();
@@ -45,20 +40,21 @@ class AudioBroadcast implements MessageComponentInterface {
 $loop = Factory::create();
 $port = 8443;
 
-// 🔒 Caminhos do certificado Let's Encrypt
-$local_cert = '/etc/letsencrypt/live/ki6.com.br/fullchain.pem';
-$local_pk   = '/etc/letsencrypt/live/ki6.com.br/privkey.pem';
+// Caminho dos certificados
+$cert = '/etc/letsencrypt/live/ki6.com.br/fullchain.pem';
+$key  = '/etc/letsencrypt/live/ki6.com.br/privkey.pem';
 
-if (!file_exists($local_cert) || !file_exists($local_pk)) {
-    die("❌ Certificados SSL não encontrados! Verifique o caminho.\n");
+if (!file_exists($cert) || !file_exists($key)) {
+    die("❌ Certificados SSL não encontrados.\n");
 }
 
+// Socket TLS
 $socket = new SocketServer("0.0.0.0:{$port}", [], $loop);
 $secureSocket = new SecureServer($socket, $loop, [
-    'local_cert'        => $local_cert,
-    'local_pk'          => $local_pk,
+    'local_cert' => $cert,
+    'local_pk' => $key,
     'allow_self_signed' => false,
-    'verify_peer'       => false
+    'verify_peer' => false
 ]);
 
 $server = new IoServer(
@@ -67,5 +63,5 @@ $server = new IoServer(
     $loop
 );
 
-echo "🌐 Servidor WSS rodando em porta {$port}\n";
+echo "🌐 Servidor WSS rodando na porta {$port}\n";
 $loop->run();
