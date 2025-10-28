@@ -1,0 +1,6 @@
+[28-Oct-2025 09:07:06 America/Fortaleza] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home3/ki6com20/public_html/nave/index.php on line 2
+[28-Oct-2025 09:07:06 America/Fortaleza] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/ki6com20/public_html/nave/index.php:1) in /home3/ki6com20/public_html/nave/index.php on line 6
+[28-Oct-2025 09:07:22 America/Fortaleza] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home3/ki6com20/public_html/nave/index.php on line 2
+[28-Oct-2025 09:07:22 America/Fortaleza] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/ki6com20/public_html/nave/index.php:1) in /home3/ki6com20/public_html/nave/index.php on line 6
+[28-Oct-2025 14:21:08 America/Fortaleza] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home3/ki6com20/public_html/nave/index.php on line 2
+[28-Oct-2025 14:21:08 America/Fortaleza] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/ki6com20/public_html/nave/index.php:1) in /home3/ki6com20/public_html/nave/index.php on line 6

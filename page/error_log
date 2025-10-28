@@ -1,0 +1,57 @@
+[28-Oct-2025 09:07:49 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 09:07:54 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 09:08:01 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 09:08:28 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 09:11:55 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 14:21:27 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 14:21:40 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 14:21:44 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 14:22:28 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 14:22:35 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 14:22:52 America/Fortaleza] PHP Fatal error:  Uncaught Error: Undefined constant "DB_HOST" in /home3/ki6com20/public_html/nave/db/conexao.php:9
+Stack trace:
+#0 /home3/ki6com20/public_html/nave/page/verifica_login.php(4): require_once()
+#1 {main}
+  thrown in /home3/ki6com20/public_html/nave/db/conexao.php on line 9
+[28-Oct-2025 14:23:19 America/Fortaleza] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/ki6com20/public_html/nave/page/verifica_login.php:4) in /home3/ki6com20/public_html/nave/page/verifica_login.php on line 6
+[28-Oct-2025 14:25:09 America/Fortaleza] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/ki6com20/public_html/nave/page/verifica_login.php:4) in /home3/ki6com20/public_html/nave/page/verifica_login.php on line 6

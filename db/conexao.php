@@ -6,7 +6,7 @@
 
 
 // Conexão com o banco de dados
- $conexao = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+ $conexao = new mysqli($db_host, $db_user, $db_pass, $db_name );
 
 // Verificar conexão
 if ($conexao->connect_error) {
