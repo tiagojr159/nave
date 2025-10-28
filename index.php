@@ -1,32 +1,32 @@
     <?php
-session_start();
+    session_start();
 
-// Verifica se o usuário está logado
-if (!isset($_SESSION['usuario'])) {
-    header("Location: page/login.php");
-    exit;
-}
+    // Verifica se o usuário está logado
+    if (!isset($_SESSION['usuario'])) {
+        header("Location: page/login.php");
+        exit;
+    }
 
-require_once 'db/conexao.php';
+    require_once 'db/conexao.php';
 
-$usuario_id = $_SESSION['usuario']['id'];
+    $usuario_id = $_SESSION['usuario']['id'];
 
-// Buscar posição salva da nave
-$sql = "SELECT posicao_x, posicao_y FROM naves WHERE usuario_id = ?";
-$stmt = $conexao->prepare($sql);
-$stmt->bind_param("i", $usuario_id);
-$stmt->execute();
-$result = $stmt->get_result();
+    // Buscar posição salva da nave
+    $sql = "SELECT posicao_x, posicao_y FROM naves WHERE usuario_id = ?";
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $usuario_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    $nave = $result->fetch_assoc();
-    $posInicialX = intval($nave['posicao_x']);
-    $posInicialY = intval($nave['posicao_y']);
-} else {
-    $posInicialX = 100;
-    $posInicialY = 100;
-}
-?>
+    if ($result->num_rows > 0) {
+        $nave = $result->fetch_assoc();
+        $posInicialX = intval($nave['posicao_x']);
+        $posInicialY = intval($nave['posicao_y']);
+    } else {
+        $posInicialX = 100;
+        $posInicialY = 100;
+    }
+    ?>
 
 
     <!DOCTYPE html>
@@ -251,12 +251,29 @@ if ($result->num_rows > 0) {
             <div class="toast" id="toast" style="display:none"></div>
         </div>
 
+<!-- 🎙️ Painel de Microfone -->
+<!-- 🎙️ Painel de Microfone -->
+<div id="micPanel" class="mic-panel">
+  <div class="mic-title">🎤 Microfone</div>
+  <div class="mic-body">
+    <div id="micIndicator" class="mic-indicator"></div>
+    <button id="micToggleBtn" class="mic-toggle">Ativar</button>
+  </div>
+</div>
+
+
+
 
         <script>
             const initialPosition = {
                 x: <?= $posInicialX ?>,
                 y: <?= $posInicialY ?>
             };
+        </script>
+
+        <script>
+            const PLAYER_ID = <?= json_encode($_SESSION['usuario']['id_nave'] ?? 0) ?>;
+            console.log("✅ PLAYER_ID carregado via PHP:", PLAYER_ID);
         </script>
         <!-- Carregar os scripts na ordem correta -->
         <!-- Carregar os scripts na ordem correta -->
@@ -266,8 +283,9 @@ if ($result->num_rows > 0) {
         <script src="js/otherShips.js"></script>
         <script src="js/enemyShips.js"></script>
         <script src="js/shipPanel.js"></script>
-        <script src="js/main.js"></script>
         <script src="js/touchControls.js"></script>
+        <script src="js/voiceChat.js"></script>
+        <script src="js/main.js"></script>
     </body>
 
     </html>

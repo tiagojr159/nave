@@ -404,6 +404,254 @@
                 setTimeout(() => salvando = false, 9500); // evita sobreposição
             }
         }, 10000);
+
+
+        // 🎙️ Controle do painel de microfone
+        document.addEventListener("DOMContentLoaded", () => {
+            const micPanel = document.getElementById("micPanel");
+            const micBtn = document.getElementById("micToggleBtn");
+            const micIndicator = document.getElementById("micIndicator");
+
+            if (!micPanel) {
+                console.warn("⚠️ micPanel não encontrado no DOM");
+                return;
+            }
+
+            // começa oculto
+            micPanel.classList.add("hidden");
+            let micAtivo = false;
+
+            // alternar microfone ligado/desligado
+            function alternarMicrofone() {
+                micAtivo = !micAtivo;
+                micIndicator.classList.toggle("active", micAtivo);
+                micBtn.textContent = micAtivo ? "Desativar" : "Ativar";
+                showFeedback(micAtivo ? "🎤 Microfone ligado" : "🔇 Microfone desligado");
+
+                // 🔹 Inicializa o chat de voz multiplayer quando ativado
+                if (micAtivo && typeof initVoiceChat === "function") {
+                    console.log("🎧 Iniciando chat de voz para jogador", PLAYER_ID);
+                    initVoiceChat(PLAYER_ID);
+                }
+
+                // 🔹 Se desligar, apenas informa (poderemos encerrar futuramente)
+                if (!micAtivo) {
+                    console.log("🔇 Chat de voz pausado");
+                }
+            }
+
+
+            // alternar painel visível/oculto
+            function alternarPainel() {
+                micPanel.classList.toggle("hidden");
+                const visivel = !micPanel.classList.contains("hidden");
+                showFeedback(visivel ? "🎙️ Painel aberto" : "🔇 Painel oculto");
+                console.log("Painel:", visivel ? "aberto" : "oculto");
+            }
+
+            // clique no botão → ativa microfone
+            micBtn.addEventListener("click", alternarMicrofone);
+
+            // tecla J → abre/fecha painel
+            window.addEventListener("keydown", (e) => {
+                if (e.key.toLowerCase() === "j") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alternarPainel();
+                }
+            });
+
+        });
+
+
+
+        const SHIP_SPRITES = {
+            idle: 'images/naves/1c.png', // motor off
+            engine: 'images/naves/1d.png', // motor on (foguinho central)
+            left: 'images/naves/1b.png', // inclinada p/ esquerda
+            right: 'images/naves/1a.png', // inclinada p/ direita
+        };
+
+        // cria o overlay e pré-carrega as imagens
+        function createShipSpriteOverlay() {
+            // container
+            let el = document.getElementById('shipSprite');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'shipSprite';
+                const img = document.createElement('img');
+                img.alt = 'Ship';
+                img.draggable = false;
+                el.appendChild(img);
+                document.body.appendChild(el);
+            }
+
+            // pré-load simples
+            Object.values(SHIP_SPRITES).forEach(src => { const i = new Image(); i.src = src; });
+
+            const img = el.querySelector('img');
+
+            let currentSrc = '';
+            let tilt = 0;        // graus
+            let slide = 0;       // px
+            let acceleratingPulseUntil = 0; // timestamp para "pico" visual após turbo/botão
+
+            // estado de teclas (não conflita com seus listeners existentes)
+            const keys = { w: false, a: false, d: false };
+
+            function setImg(src) {
+                if (src !== currentSrc) {
+                    currentSrc = src;
+                    img.src = src;
+                }
+            }
+
+            function setTransform() {
+                img.style.transform = `translateX(${slide}px) rotate(${tilt}deg)`;
+            }
+
+            // Determina sprite com base em teclas e boost
+            function computeState() {
+                const now = Date.now();
+
+                const turningLeft = keys.a;
+                const turningRight = keys.d;
+                const accelerating = keys.w || (now < acceleratingPulseUntil);
+
+                // base: engine vs idle
+                let base = accelerating ? 'engine' : 'idle';
+
+                // prioridade para direção
+                if (turningLeft && !turningRight) {
+                    setImg(SHIP_SPRITES.left);
+                    tilt = -10;          // inclina p/ esquerda
+                    slide = -10;          // deslize sutil
+                } else if (turningRight && !turningLeft) {
+                    setImg(SHIP_SPRITES.right);
+                    tilt = 10;           // inclina p/ direita
+                    slide = 10;
+                } else {
+                    setImg(SHIP_SPRITES[base]);
+                    tilt = accelerating ? -2 : 0;   // leve nariz baixo quando acelera
+                    slide = 0;
+                }
+
+                // efeito extra quando acelerando (brilho leve)
+                img.style.filter = accelerating ? 'drop-shadow(0 0 6px rgba(255,160,50,0.7))' : 'none';
+                setTransform();
+            }
+
+            // Ouça suas teclas sem criar intervalos
+            // Controle de teclas com suporte às setas ← → (rotação de câmera)
+            // ============================================================
+            // 🔹 Atalhos personalizados para alternar componentes da interface
+            // ============================================================
+
+            document.addEventListener('keydown', (e) => {
+                // evita interferir com digitação em campos
+                if (['input', 'textarea'].includes(document.activeElement.tagName.toLowerCase())) return;
+
+                const toggleVisibility = (selector) => {
+                    const el = document.querySelector(selector);
+                    if (!el) return;
+                    el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+                };
+
+                switch (e.key.toLowerCase()) {
+                    case 'k':
+                        toggleVisibility('.planet-view'); // Visão Planetária
+                        showFeedback('🔭 Visão Planetária alternada');
+                        break;
+
+                    case 'l':
+                        toggleVisibility('.scanner-container'); // Scanner
+                        showFeedback('📡 Scanner alternado');
+                        break;
+
+                    case 'p':
+                        toggleVisibility('.waypoint-container'); // Waypoints
+                        showFeedback('📍 Waypoints alternados');
+                        break;
+
+                    case 'o':
+                        toggleVisibility('.hologram-container'); // Mapa Holográfico
+                        showFeedback('🛰️ Mapa Holográfico alternado');
+                        break;
+                    case 'j':
+                        toggleVisibility('#micPanel'); // Painel de Comunicação (microfone)
+                        showFeedback('🎙️ Painel de Comunicação alternado');
+                        break;
+
+                    case 'i':
+                        // Alterna HUD + controles
+                        toggleVisibility('#hud');
+                        toggleVisibility('.controls');
+                        showFeedback('🎛️ Painel principal alternado');
+                        break;
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'w' || e.key === 'a' || e.key === 'ArrowUp') keys.w = false;
+
+                // if (e.key === 'w' || e.key === 'ArrowUp') keys.w = false;
+
+                if (e.key === 'ArrowLeft') keys.a = false;
+                if (e.key === 'ArrowRight') keys.d = false;
+
+                //if (e.key === 'a' || e.key === 'ArrowLeft') keys.a = false;
+                // if (e.key === 'd' || e.key === 'ArrowRight') keys.d = false;
+
+                computeState();
+            });
+
+
+
+            // Integra com seus botões já existentes (boost/freio) se existirem
+            const boostBtn = document.getElementById('boostBtn');
+            if (boostBtn) {
+                boostBtn.addEventListener('click', () => {
+                    // dá um “pico” visual de aceleração por ~700ms
+                    acceleratingPulseUntil = Date.now() + 700;
+                    computeState();
+                });
+            }
+
+            // estado inicial
+            setImg(SHIP_SPRITES.idle);
+            setTransform();
+
+            // pequena cola pública
+            window.shipSprite = {
+                pulseAccelerate(ms = 700) {
+                    acceleratingPulseUntil = Date.now() + ms;
+                    computeState();
+                },
+                setCenterOffset(px) { slide = px; setTransform(); },
+            };
+
+            // acompanhando o game loop existente: apenas “ouve” frames
+            // (não cria intervalos: usa rAF leve para suavizar quando o jogo está ativo)
+            let raf = null;
+            function smoothLoop() {
+                computeState();
+                raf = requestAnimationFrame(smoothLoop);
+            }
+            raf = requestAnimationFrame(smoothLoop);
+
+            // se quiser encerrar: cancelAnimationFrame(raf)
+            return el;
+        }
+
+        // cria o overlay
+        createShipSpriteOverlay();
+
+
+
+
+
+
+
         return true;
     }
 

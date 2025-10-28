@@ -1,10 +1,9 @@
 <?php
-try {
-error_reporting(0);
-    require_once '../config.php';
-} catch (\Throwable $th) {
-    require_once 'config.php';
-}
+// db/conexao.php
+
+//error_reporting(0);
+    require_once __DIR__ . '/../config.php';
+
 
 // Conexão com o banco de dados
  $conexao = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);

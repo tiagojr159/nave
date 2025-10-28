@@ -12,6 +12,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let W = 0, H = 0, lastT = 0;
 
+    // 🔹 Sprites da nave do jogador
+    const shipSprites = {
+        idle: new Image(),
+        engine: new Image(),
+        left: new Image(),
+        right: new Image()
+    };
+    shipSprites.idle.src = 'images/naves/1c.png';   // parada
+    shipSprites.engine.src = 'images/naves/1d.png'; // motor ligado
+    shipSprites.left.src = 'images/naves/1b.png';   // inclinando esquerda
+    shipSprites.right.src = 'images/naves/1a.png';  // inclinando direita
+
+
+
     // Funções auxiliares
     function clamp(v, a, b) {
         return Math.max(a, Math.min(b, v));
@@ -169,13 +183,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (window.otherShips) otherShips.updateNPCs(dt);
         if (window.enemyShips) enemyShips.updateEnemies(dt);
 
-        // 🔹 ADICIONAR AQUI — salva a posição automaticamente a cada 10 segundos
 
 
-        // 🔹 Intervalo de salvamento automático
-        setInterval(() => {
-            if (window.ship) salvarPosicao(ship.x, ship.y);
-        }, 10000);
+
 
     }
 
@@ -211,6 +221,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (window.planets) planets.updatePlanetView();
         if (window.universeBackground) universeBackground.updateSpeedEffect();
+
+        // 🔹 Desenhar a nave do jogador
+        if (window.ship) {
+            ctx.save();
+            ctx.translate(W / 2, H * 0.6); // centro da tela = posição da nave
+            ctx.rotate(ship.heading * Math.PI / 180);
+
+            // Triângulo representando a nave
+            ctx.beginPath();
+            ctx.moveTo(0, -20);
+            ctx.lineTo(10, 10);
+            ctx.lineTo(-10, 10);
+            ctx.closePath();
+
+
+            ctx.restore();
+        }
+
+
+
 
         // "Retícula" simples
         ctx.strokeStyle = '#5865f299';
@@ -477,6 +507,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupControls();
     await loadImages();
 
+    // ======================================================
+    // 🔹 Inicializar objeto da nave local se ainda não existir
+    // ======================================================
+    if (typeof window.ship === "undefined" || !window.ship) {
+        window.ship = {
+            id: typeof PLAYER_ID !== "undefined" ? PLAYER_ID : 0,
+            nome: "Nave Jogador",
+            x: 50000 + Math.random() * 5000,
+            y: 50000 + Math.random() * 5000,
+            heading: 0,
+            vel: 0,
+            acc: 0,
+            pitch: 0,
+            maxSpeed: 800,
+            turnRate: 90,
+            boostEnergy: 100,
+            boostConsumptionRate: 0.5,
+            boostRechargeRate: 0.25,
+            turboMultiplier: 2
+        };
+        console.log("✅ Nave inicializada:", window.ship);
+    } else {
+        console.log("🛰️ Nave já definida:", window.ship);
+    }
+
+
+
+
+
+
+
+
     // Verificar se todos os módulos foram carregados
     console.log("Verificando módulos:");
     console.log("- universeBackground:", window.universeBackground ? "OK" : "FALHA");
@@ -501,4 +563,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     console.log("Jogo inicializado com sucesso");
+    // 🔹 Salvamento automático da posição (fora do loop principal)
+    setInterval(() => {
+        if (window.ship && typeof salvarPosicao === 'function') {
+            salvarPosicao(ship.x, ship.y);
+        }
+    }, 2000);
+// ===========================================================
+    // 🎙️ MICROFONE PANEL - MOSTRAR/OCULTAR E ATIVAR/DESATIVAR
+    // ===========================================================
+    (function () {
+        const micPanel = document.getElementById("micPanel");
+        const micIndicator = document.getElementById("micIndicator");
+        const micBtn = document.getElementById("micToggleBtn");
+
+        if (!micPanel || !micIndicator || !micBtn) {
+            console.warn("⚠️ Painel de microfone não encontrado no DOM.");
+            return;
+        }
+
+        console.log("✅ Painel de microfone detectado e funcional");
+
+        let micAtivo = false;
+        let micVisivel = false;
+
+        function alternarMicrofone() {
+            micAtivo = !micAtivo;
+            micIndicator.classList.toggle("active", micAtivo);
+            micBtn.textContent = micAtivo ? "Desativar" : "Ativar";
+            flash(micAtivo ? "🎤 Microfone ligado" : "🔇 Microfone desligado");
+        }
+
+        function alternarPainel() {
+            micVisivel = !micVisivel;
+            micPanel.style.display = micVisivel ? "flex" : "none";
+            console.log("🎙️ Painel de microfone:", micVisivel ? "visível" : "oculto");
+            flash(micVisivel ? "🎙️ Painel de microfone aberto" : "🎙️ Painel oculto");
+        }
+
+        // 🔹 Clique no botão ativa/desativa o microfone
+        micBtn.addEventListener("click", (e) => {
+            e.stopPropagation(); // impede conflito com outros cliques
+            alternarMicrofone();
+        });
+
+        // 🔹 Captura tecla J para mostrar/ocultar o painel
+        window.addEventListener("keydown", (e) => {
+            if (e.key && e.key.toLowerCase() === "j") {
+                e.preventDefault();
+                alternarPainel();
+            }
+        });
+    })();
 });

@@ -322,7 +322,7 @@ if(isset($_SESSION['usuario'])) {
                     
                     // Redirecionar após login bem-sucedido
                     setTimeout(() => {
-                        window.location.href = 'mapa_astrados.php';
+                        window.location.href = 'index.php';
                     }, 1500);
                 } else {
                     errorMessage.textContent = data.message;
