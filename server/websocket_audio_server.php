@@ -1,30 +1,30 @@
 <?php
-// server/websocket_audio_server.php
+// 🎧 Servidor WebSocket de Áudio Global (Ratchet)
 require __DIR__ . '/../vendor/autoload.php';
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
 use Ratchet\Server\IoServer;
+use Ratchet\WebSocket\WsServer;
+use React\Socket\SocketServer;
 
 class AudioBroadcast implements MessageComponentInterface {
-    protected \SplObjectStorage $clients;
+    protected $clients;
 
     public function __construct() {
-        $this->clients = new \SplObjectStorage();
-        echo "🎧 Servidor de áudio iniciado...\n";
+        $this->clients = new \SplObjectStorage;
+        echo "🎙️ Servidor de áudio iniciado...\n";
     }
 
     public function onOpen(ConnectionInterface $conn) {
         $this->clients->attach($conn);
-        echo "Novo cliente. Total: " . count($this->clients) . "\n";
+        echo "🛰️ Nova conexão: {$conn->resourceId}\n";
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
         foreach ($this->clients as $client) {
-            if ($from !== $client) {
-                // repassa base64 diretamente; o cliente cria o Blob e toca
+            if ($client !== $from) {
                 $client->send($msg);
             }
         }
@@ -32,24 +32,22 @@ class AudioBroadcast implements MessageComponentInterface {
 
     public function onClose(ConnectionInterface $conn) {
         $this->clients->detach($conn);
-        echo "Cliente saiu. Total: " . count($this->clients) . "\n";
+        echo "❌ Conexão encerrada: {$conn->resourceId}\n";
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
-        echo "Erro: {$e->getMessage()}\n";
+        echo "⚠️ Erro: {$e->getMessage()}\n";
         $conn->close();
     }
 }
 
-$port = 8443; // mantenha igual ao usado no JS
-use React\Socket\SocketServer;
-
+$port = 8443;
 $socket = new SocketServer("0.0.0.0:{$port}");
+
 $server = new IoServer(
     new HttpServer(new WsServer(new AudioBroadcast())),
     $socket
 );
 
-
-echo "🛰️ Escutando WS na porta {$port}\n";
+echo "🌐 Servidor WebSocket ouvindo em porta {$port}\n";
 $server->run();

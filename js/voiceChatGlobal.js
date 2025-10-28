@@ -1,170 +1,117 @@
-// public/js/voiceChatGlobal.js
-// Rádio Global: todos ouvem todos (broadcast via WebSocket)
-// Depende dos elementos: #micPanel, #micToggleBtn, #micIndicator
+// 🎙️ Rádio Global — todos os jogadores falam e ouvem via WebSocket
+// Funciona com o painel micPanel, micToggleBtn e micIndicator
+
 (() => {
   const WS_HOST = (location.protocol === 'https:' ? 'wss://' : 'ws://') + 'ki6.com.br:8443';
   const BTN = () => document.getElementById('micToggleBtn');
   const IND = () => document.getElementById('micIndicator');
   const PANEL = () => document.getElementById('micPanel');
 
-  let ws = null;
-  let micStream = null;
-  let mediaRecorder = null;
-  let micActive = false;
-  let reconnectTimer = null;
+  let ws, micStream, audioCtx, processor, micAtivo = false;
+  const buffers = {}; // múltiplos streams
 
-  // ———————————————————
-  // Boot
-  // ———————————————————
-  document.addEventListener('DOMContentLoaded', () => {
-    // garante painel na tela
-    if (PANEL()) PANEL().style.display = 'flex';
+  // 🔹 Conecta ao servidor WebSocket
+  function connectWS() {
+    ws = new WebSocket(WS_HOST);
 
-    // botão ativa/desativa mic
-    if (BTN()) {
-      BTN().addEventListener('click', async () => {
-        if (micActive) stopMic();
-        else await startMic();
-      });
-    }
+    ws.onopen = () => console.log("🎧 Conectado ao servidor de voz:", WS_HOST);
+    ws.onmessage = e => handleIncoming(e);
+    ws.onclose = () => {
+      console.warn("⚠️ Conexão WebSocket encerrada. Tentando reconectar...");
+      setTimeout(connectWS, 2000);
+    };
+  }
 
-    // tecla J mostra/oculta painel (se quiser manter)
-    document.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === 'j' && PANEL()) {
-        e.preventDefault();
-        PANEL().style.display = (PANEL().style.display === 'none') ? 'flex' : 'none';
+  // 🔹 Trata áudio recebido (de qualquer jogador)
+  function handleIncoming(event) {
+    try {
+      const msg = JSON.parse(event.data);
+      if (msg.type === "audio" && msg.data) {
+        playAudioChunk(msg.data);
       }
-    });
+    } catch (err) {
+      console.error("Erro ao processar áudio recebido:", err);
+    }
+  }
 
+  // 🔹 Reproduz o áudio recebido
+  async function playAudioChunk(base64Data) {
+    try {
+      if (!audioCtx) audioCtx = new AudioContext();
+      const audioData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0)).buffer;
+      const decoded = await audioCtx.decodeAudioData(audioData);
+      const src = audioCtx.createBufferSource();
+      src.buffer = decoded;
+      src.connect(audioCtx.destination);
+      src.start(0);
+    } catch (e) {
+      console.error("Erro ao tocar áudio:", e);
+    }
+  }
+
+  // 🔹 Ativa ou desativa o microfone
+  async function alternarMicrofone() {
+    micAtivo = !micAtivo;
+
+    if (micAtivo) {
+      await ativarMicrofone();
+      BTN().textContent = "Desativar";
+      IND().classList.add("active");
+      console.log("🎙️ Microfone ligado");
+    } else {
+      desativarMicrofone();
+      BTN().textContent = "Ativar";
+      IND().classList.remove("active");
+      console.log("🔇 Microfone desligado");
+    }
+  }
+
+  // 🔹 Ativa microfone e captura áudio
+  async function ativarMicrofone() {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const source = audioCtx.createMediaStreamSource(micStream);
+      processor = audioCtx.createScriptProcessor(4096, 1, 1);
+
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+
+      processor.onaudioprocess = e => {
+        if (!micAtivo || ws.readyState !== WebSocket.OPEN) return;
+
+        const input = e.inputBuffer.getChannelData(0);
+        const buffer = new ArrayBuffer(input.length * 2);
+        const view = new DataView(buffer);
+
+        // Converte Float32 para Int16
+        for (let i = 0, offset = 0; i < input.length; i++, offset += 2) {
+          const s = Math.max(-1, Math.min(1, input[i]));
+          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        }
+
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+        ws.send(JSON.stringify({ type: "audio", data: base64 }));
+      };
+    } catch (err) {
+      console.error("Erro ao ativar microfone:", err);
+    }
+  }
+
+  // 🔹 Desativa microfone
+  function desativarMicrofone() {
+    if (micStream) {
+      micStream.getTracks().forEach(t => t.stop());
+      micStream = null;
+    }
+    if (processor) processor.disconnect();
+    if (audioCtx) audioCtx.close();
+  }
+
+  // 🔹 Inicializa
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = BTN();
+    if (btn) btn.addEventListener("click", alternarMicrofone);
     connectWS();
   });
-
-  // ———————————————————
-  // WebSocket
-  // ———————————————————
-  function connectWS() {
-    try {
-      ws = new WebSocket(WS_HOST);
-    } catch (err) {
-      console.error('Falha ao criar WebSocket:', err);
-      scheduleReconnect();
-      return;
-    }
-
-    ws.onopen = () => {
-      console.log('🛰️ WS conectado em', WS_HOST);
-      clearTimeout(reconnectTimer);
-    };
-
-    ws.onclose = () => {
-      console.warn('🔌 WS desconectado');
-      scheduleReconnect();
-    };
-
-    ws.onerror = (e) => {
-      console.warn('WS erro', e);
-      ws.close();
-    };
-
-    ws.onmessage = (ev) => {
-      // Recebe blocos base64 de áudio opus (ogg)
-      const ab = base64ToArrayBuffer(ev.data);
-      const blob = new Blob([ab], { type: 'audio/ogg; codecs=opus' });
-
-      // Respeita política de reprodução: usa Audio() por evento de usuário
-      const audio = new Audio();
-      audio.src = URL.createObjectURL(blob);
-      audio.play().catch(() => {
-        // se o navegador travar o autoplay, tenta ao clicar em qualquer lugar
-        const unlock = () => {
-          audio.play().finally(() => document.removeEventListener('click', unlock));
-        };
-        document.addEventListener('click', unlock, { once: true });
-      });
-    };
-  }
-
-  function scheduleReconnect() {
-    if (reconnectTimer) return;
-    reconnectTimer = setTimeout(() => {
-      reconnectTimer = null;
-      connectWS();
-    }, 1500);
-  }
-
-  // ———————————————————
-  // Microfone
-  // ———————————————————
-  async function startMic() {
-    try {
-      // Captura áudio
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      // MediaRecorder em opus (ogg) – bom para latência e banda
-      const mime = MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')
-        ? 'audio/ogg; codecs=opus'
-        : 'audio/webm; codecs=opus';
-
-      mediaRecorder = new MediaRecorder(micStream, { mimeType: mime });
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (!e.data || e.data.size === 0) return;
-        if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
-        blobToBase64(e.data).then(b64 => {
-          // pacote pequeno, reduz delay (200ms é um bom meio-termo)
-          ws.send(b64);
-        });
-      };
-
-      mediaRecorder.start(200);
-      micActive = true;
-      if (IND()) IND().classList.add('active');
-      if (BTN()) BTN().textContent = 'Desativar';
-      window.shipPanel?.updateScannerObjects?.(); // só para forçar repaint se quiser
-      window.showFeedback?.('🎤 Rádio Global Ligado');
-
-    } catch (err) {
-      console.error('Erro ao acessar microfone:', err);
-      alert('Não foi possível ativar o microfone: ' + err.message);
-    }
-  }
-
-  function stopMic() {
-    try {
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-    } catch {}
-    if (micStream) {
-      for (const t of micStream.getTracks()) t.stop();
-    }
-    mediaRecorder = null;
-    micStream = null;
-    micActive = false;
-    if (IND()) IND().classList.remove('active');
-    if (BTN()) BTN().textContent = 'Ativar';
-    window.showFeedback?.('🔇 Rádio Global Desligado');
-  }
-
-  // ———————————————————
-  // Utils
-  // ———————————————————
-  function blobToBase64(blob) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]);
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  function base64ToArrayBuffer(base64) {
-    const binary = atob(base64);
-    const len = binary.length;
-    const buffer = new ArrayBuffer(len);
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
-    return buffer;
-  }
-
-  // Exponho só se você quiser chamar manualmente em testes:
-  window.voiceChatGlobal = { startMic, stopMic, connectWS };
 })();
