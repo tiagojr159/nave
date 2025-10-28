@@ -2,7 +2,7 @@
 // Funciona com o painel micPanel, micToggleBtn e micIndicator
 
 (() => {
-  const WS_HOST = (location.protocol === 'https:' ? 'wss://' : 'ws://') + 'ki6.com.br:8443';
+const WS_HOST = 'ws://ki6.com.br:8443';
   const BTN = () => document.getElementById('micToggleBtn');
   const IND = () => document.getElementById('micIndicator');
   const PANEL = () => document.getElementById('micPanel');
