@@ -14,12 +14,14 @@ class AudioBroadcast implements MessageComponentInterface {
     protected $clients;
     public function __construct() {
         $this->clients = new \SplObjectStorage;
-        echo "🎙️ Servidor de áudio WSS iniciado...\n";
+        echo "🎙️ Servidor WSS de voz iniciado...\n";
     }
+
     public function onOpen(ConnectionInterface $conn) {
         $this->clients->attach($conn);
-        echo "🛰️ Nova conexão #{$conn->resourceId}\n";
+        echo "🛰️ Cliente conectado: {$conn->resourceId}\n";
     }
+
     public function onMessage(ConnectionInterface $from, $msg) {
         foreach ($this->clients as $client) {
             if ($client !== $from) {
@@ -27,10 +29,12 @@ class AudioBroadcast implements MessageComponentInterface {
             }
         }
     }
+
     public function onClose(ConnectionInterface $conn) {
         $this->clients->detach($conn);
-        echo "❌ Conexão encerrada #{$conn->resourceId}\n";
+        echo "❌ Cliente desconectado: {$conn->resourceId}\n";
     }
+
     public function onError(ConnectionInterface $conn, \Exception $e) {
         echo "⚠️ Erro: {$e->getMessage()}\n";
         $conn->close();
@@ -40,21 +44,20 @@ class AudioBroadcast implements MessageComponentInterface {
 $loop = Factory::create();
 $port = 8443;
 
-// Caminho dos certificados
+// 🔒 Caminho dos certificados SSL do Let's Encrypt
 $cert = '/etc/letsencrypt/live/ki6.com.br/fullchain.pem';
 $key  = '/etc/letsencrypt/live/ki6.com.br/privkey.pem';
 
 if (!file_exists($cert) || !file_exists($key)) {
-    die("❌ Certificados SSL não encontrados.\n");
+    die("❌ Certificados SSL não encontrados!\n");
 }
 
-// Socket TLS
 $socket = new SocketServer("0.0.0.0:{$port}", [], $loop);
 $secureSocket = new SecureServer($socket, $loop, [
-    'local_cert' => $cert,
-    'local_pk' => $key,
+    'local_cert'        => $cert,
+    'local_pk'          => $key,
     'allow_self_signed' => false,
-    'verify_peer' => false
+    'verify_peer'       => false
 ]);
 
 $server = new IoServer(
@@ -63,5 +66,5 @@ $server = new IoServer(
     $loop
 );
 
-echo "🌐 Servidor WSS rodando na porta {$port}\n";
+echo "🌐 Servidor WebSocket seguro (WSS) escutando em porta {$port}\n";
 $loop->run();
