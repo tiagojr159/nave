@@ -42,10 +42,14 @@ class AudioBroadcast implements MessageComponentInterface {
 }
 
 $port = 8443; // mantenha igual ao usado no JS
-$server = IoServer::factory(
+use React\Socket\SocketServer;
+
+$socket = new SocketServer("0.0.0.0:{$port}");
+$server = new IoServer(
     new HttpServer(new WsServer(new AudioBroadcast())),
-    $port
+    $socket
 );
+
 
 echo "🛰️ Escutando WS na porta {$port}\n";
 $server->run();
