@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 session_start();
 
-// Verifica se o usuário está logado
+// Verifica se o usuï¿½rio estï¿½ logado
 if (!isset($_SESSION['usuario'])) {
     header("Location: page/login.php");
     exit;
@@ -287,6 +287,7 @@ require_once 'db/conexao.php';
         <script src="js/otherShips.js"></script>
         <script src="js/enemyShips.js"></script>
         <script src="js/shipPanel.js"></script>
+        <script src="js/voiceChatGlobal.js"></script>
         <script src="js/touchControls.js"></script>
         <script src="js/voiceChat.js"></script>
         <script src="js/main.js"></script>
