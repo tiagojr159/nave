@@ -1,5 +1,4 @@
 <?php
-// 🎧 Servidor WebSocket de Áudio Global (Ratchet)
 require __DIR__ . '/../vendor/autoload.php';
 
 use Ratchet\MessageComponentInterface;
@@ -8,13 +7,15 @@ use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
 use React\Socket\SocketServer;
+use React\Socket\SecureServer;
+use React\EventLoop\Factory;
 
 class AudioBroadcast implements MessageComponentInterface {
     protected $clients;
 
     public function __construct() {
         $this->clients = new \SplObjectStorage;
-        echo "🎙️ Servidor de áudio iniciado...\n";
+        echo "🎙️ Servidor de áudio inicializado (WSS habilitado)...\n";
     }
 
     public function onOpen(ConnectionInterface $conn) {
@@ -41,13 +42,30 @@ class AudioBroadcast implements MessageComponentInterface {
     }
 }
 
+$loop = Factory::create();
 $port = 8443;
-$socket = new SocketServer("0.0.0.0:{$port}");
+
+// 🔒 Caminhos do certificado Let's Encrypt
+$local_cert = '/etc/letsencrypt/live/ki6.com.br/fullchain.pem';
+$local_pk   = '/etc/letsencrypt/live/ki6.com.br/privkey.pem';
+
+if (!file_exists($local_cert) || !file_exists($local_pk)) {
+    die("❌ Certificados SSL não encontrados! Verifique o caminho.\n");
+}
+
+$socket = new SocketServer("0.0.0.0:{$port}", [], $loop);
+$secureSocket = new SecureServer($socket, $loop, [
+    'local_cert'        => $local_cert,
+    'local_pk'          => $local_pk,
+    'allow_self_signed' => false,
+    'verify_peer'       => false
+]);
 
 $server = new IoServer(
     new HttpServer(new WsServer(new AudioBroadcast())),
-    $socket
+    $secureSocket,
+    $loop
 );
 
-echo "🌐 Servidor WebSocket ouvindo em porta {$port}\n";
-$server->run();
+echo "🌐 Servidor WSS rodando em porta {$port}\n";
+$loop->run();

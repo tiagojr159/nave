@@ -274,6 +274,7 @@ require_once 'db/conexao.php';
                 y: <?= $posInicialY ?>
             };
         </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
         <script>
             const PLAYER_ID = <?= json_encode($_SESSION['usuario']['id_nave'] ?? 0) ?>;
