@@ -1,5 +1,14 @@
+# 🔁 Ativa o mecanismo de reescrita
 RewriteEngine On
 
-# 🔁 Redireciona WebSocket seguro (WSS) para o servidor local
+# ✅ Corrige cache e compressão normal do site
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+Header set Connection keep-alive
+
+# 🔸 Redireciona WebSocket (Upgrade: websocket)
 RewriteCond %{HTTP:Upgrade} =websocket [NC]
-RewriteRule ^voice/(.*)$  ws://127.0.0.1:8080/$1  [P,L]
+RewriteRule ^nave/voice/?$  ws://127.0.0.1:8080/  [P,L]
+
+# 🔸 Mantém HTTPS e força SSL
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
