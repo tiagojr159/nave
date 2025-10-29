@@ -5,7 +5,7 @@ header("Content-Type: application/json");
 header("Cache-Control: no-cache");
 
 $host = "127.0.0.1";
-$port = 8080; // Porta interna do Ratchet
+$port = 8090; // Porta interna do Ratchet
 $timeout = 3;
 
 // Conecta localmente ao servidor de voz
