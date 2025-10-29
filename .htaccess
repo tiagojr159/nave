@@ -1,14 +1,23 @@
-# 🔁 Ativa o mecanismo de reescrita
+# -----------------------------------------
+# 🎙️ Proxy Reverso para WebSocket (Ratchet)
+# -----------------------------------------
+
+# Ativa reescrita
 RewriteEngine On
 
-# ✅ Corrige cache e compressão normal do site
-AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
-Header set Connection keep-alive
-
-# 🔸 Redireciona WebSocket (Upgrade: websocket)
+# 🔸 Redireciona conexões WebSocket do navegador (WSS → WS interno)
 RewriteCond %{HTTP:Upgrade} =websocket [NC]
-RewriteRule ^nave/voice/?$  ws://127.0.0.1:8080/  [P,L]
+RewriteCond %{HTTP:Connection} upgrade [NC]
+RewriteRule ^nave/voice/?$ ws://127.0.0.1:8080/ [P,L]
 
-# 🔸 Mantém HTTPS e força SSL
+# 🔸 Mantém HTTPS ativo e força SSL no restante do site
 RewriteCond %{HTTPS} !=on
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 🔸 Cabeçalhos para manter a conexão ativa
+Header always set Connection keep-alive
+Header always set Upgrade $http_upgrade
+Header always set Access-Control-Allow-Origin "*"
+
+# 🔸 Compactação normal do site
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json

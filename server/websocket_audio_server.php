@@ -13,7 +13,7 @@ class AudioBroadcast implements MessageComponentInterface {
     protected $clients;
     public function __construct() {
         $this->clients = new \SplObjectStorage;
-        echo "🎙️ Servidor de voz iniciado em ws://localhost:8080\n";
+echo "🎙️ Servidor de voz iniciado em ws://0.0.0.0:8080\n";
     }
 
     public function onOpen(ConnectionInterface $conn) {
