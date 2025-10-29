@@ -7,8 +7,8 @@ use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
 use React\EventLoop\Factory;
-use React\Socket\SecureServer;
 use React\Socket\SocketServer;
+use React\Socket\SecureServer;
 
 class AudioBroadcast implements MessageComponentInterface {
     protected $clients;
@@ -41,29 +41,49 @@ class AudioBroadcast implements MessageComponentInterface {
     }
 }
 
-// 🚀 Configuração do servidor seguro (porta 8443)
+// 🔹 Inicia o loop principal
 $loop = Factory::create();
 
-$context = [
-    'local_cert'  => '/etc/ssl/certs/ssl-cert.crt',
-    'local_pk'    => '/etc/ssl/certs/ssl-cert.key',
-    'allow_self_signed' => true,
-    'verify_peer' => false
+// 🔹 Detecta certificado SSL automaticamente
+$possibleCerts = [
+    '/etc/letsencrypt/live/ki6.com.br/fullchain.pem' => '/etc/letsencrypt/live/ki6.com.br/privkey.pem',
+    '/etc/pki/tls/certs/localhost.crt' => '/etc/pki/tls/private/localhost.key',
+    '/etc/ssl/certs/ssl-cert.crt' => '/etc/ssl/certs/ssl-cert.key',
+    '/var/cpanel/ssl/certs/ki6.com.br.crt' => '/var/cpanel/ssl/keys/ki6.com.br.key',
 ];
 
-// 🔹 Tenta localizar certificados padrão da HostGator (Let's Encrypt)
-if (!file_exists($context['local_cert'])) {
-    $context['local_cert'] = '/etc/pki/tls/certs/localhost.crt';
-    $context['local_pk'] = '/etc/pki/tls/private/localhost.key';
+$found = false;
+foreach ($possibleCerts as $cert => $key) {
+    if (file_exists($cert) && file_exists($key)) {
+        $context = [
+            'local_cert' => $cert,
+            'local_pk' => $key,
+            'allow_self_signed' => true,
+            'verify_peer' => false
+        ];
+        $found = true;
+        echo "✅ Certificado SSL detectado: $cert\n";
+        break;
+    }
 }
 
-$socket = new SocketServer('0.0.0.0:8443', [], $loop);
-$secure = new SecureServer($socket, $loop, $context);
+if (!$found) {
+    echo "⚠️ Nenhum certificado SSL válido encontrado. Abortando servidor.\n";
+    exit(1);
+}
 
-$server = new IoServer(
-    new HttpServer(new WsServer(new AudioBroadcast())),
-    $secure,
-    $loop
-);
+// 🔹 Inicializa o servidor HTTPS seguro
+try {
+    $socket = new SocketServer('0.0.0.0:8443', [], $loop);
+    $secure = new SecureServer($socket, $loop, $context);
 
-$loop->run();
+    new IoServer(
+        new HttpServer(new WsServer(new AudioBroadcast())),
+        $secure,
+        $loop
+    );
+
+    $loop->run();
+} catch (Exception $e) {
+    echo "❌ Falha ao iniciar servidor seguro: {$e->getMessage()}\n";
+}
