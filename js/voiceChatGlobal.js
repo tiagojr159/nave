@@ -1,7 +1,7 @@
 // 🎙️ Rádio Global — todos os jogadores falam e ouvem via WebSocket
 (() => {
 // Conexão direta com o servidor de voz
-const WS_HOST = 'wss://ki6.com.br:8443';
+const WS_HOST = 'wss://ki6.com.br:9443';
 
 
   const BTN = () => document.getElementById('micToggleBtn');

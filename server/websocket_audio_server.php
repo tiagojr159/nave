@@ -74,7 +74,7 @@ if (!$found) {
 
 // 🔹 Inicializa o servidor HTTPS seguro
 try {
-    $socket = new SocketServer('0.0.0.0:8443', [], $loop);
+    $socket = new SocketServer('0.0.0.0:9443', [], $loop);
     $secure = new SecureServer($socket, $loop, $context);
 
     new IoServer(
